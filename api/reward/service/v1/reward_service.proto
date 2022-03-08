@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package api.reward.service.v1;
+
+option go_package = "sign-in/api/reward/service/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.reward.service.v1";
+
+service Reward_service {
+	rpc CreateReward_service (CreateReward_serviceRequest) returns (CreateReward_serviceReply);
+	rpc UpdateReward_service (UpdateReward_serviceRequest) returns (UpdateReward_serviceReply);
+	rpc DeleteReward_service (DeleteReward_serviceRequest) returns (DeleteReward_serviceReply);
+	rpc GetReward_service (GetReward_serviceRequest) returns (GetReward_serviceReply);
+	rpc ListReward_service (ListReward_serviceRequest) returns (ListReward_serviceReply);
+}
+
+message CreateReward_serviceRequest {}
+message CreateReward_serviceReply {}
+
+message UpdateReward_serviceRequest {}
+message UpdateReward_serviceReply {}
+
+message DeleteReward_serviceRequest {}
+message DeleteReward_serviceReply {}
+
+message GetReward_serviceRequest {}
+message GetReward_serviceReply {}
+
+message ListReward_serviceRequest {}
+message ListReward_serviceReply {}

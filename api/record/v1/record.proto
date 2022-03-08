@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package api.record.v1;
+
+option go_package = "sign-in/api/record/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.record.v1";
+
+service RecordService {
+  rpc GetSignInInfo(GetSignInInfoRequest) returns (SignInInfoReply);
+  rpc SignIn(SignInRequest) returns (SignInInfoReply);
+}
+
+message GetSignInInfoRequest {
+  int64 user = 1;
+}
+
+message SignInInfoReply {
+  repeated double reward_list = 1;
+  repeated bool sign_index_list = 2;
+  bool is_sign_today = 3;
+}
+
+message SignInRequest {
+  int64 user = 1;
+}

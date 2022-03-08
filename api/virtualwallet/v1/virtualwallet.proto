@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package api.virtualwallet.v1;
+
+option go_package = "sign-in/api/virtualwallet/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.virtualwallet.v1";
+
+service VirtualWallet {
+	// 入账流水不在这里定义
+	// rpc CreateVirtualWallet (CreateVirtualWalletRequest) returns (CreateVirtualWalletReply);
+	rpc GetBalance (getBalanceRequest) returns (getBalanceReply); //查询余额
+	rpc Debit (debitRequest) returns (debitReply); // 出账
+	rpc Credit (creditRequest) returns (creditReply); // 入账
+}
+
+
+
+message getBalanceRequest {
+	int64 user = 1;
+}
+message getBalanceReply {
+	double amount = 1;
+}
+
+message debitRequest {}
+message debitReply {}
+
+message creditRequest {}
+message creditReply {}
