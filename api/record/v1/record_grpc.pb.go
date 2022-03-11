@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type RecordServiceClient interface {
 	GetSignInInfo(ctx context.Context, in *GetSignInInfoRequest, opts ...grpc.CallOption) (*SignInInfoReply, error)
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInInfoReply, error)
+	GetUserSignInRecord(ctx context.Context, in *GetUserSignInRecordRequest, opts ...grpc.CallOption) (*GetUserSignInRecordReply, error)
 }
 
 type recordServiceClient struct {
@@ -52,12 +53,22 @@ func (c *recordServiceClient) SignIn(ctx context.Context, in *SignInRequest, opt
 	return out, nil
 }
 
+func (c *recordServiceClient) GetUserSignInRecord(ctx context.Context, in *GetUserSignInRecordRequest, opts ...grpc.CallOption) (*GetUserSignInRecordReply, error) {
+	out := new(GetUserSignInRecordReply)
+	err := c.cc.Invoke(ctx, "/api.record.v1.RecordService/GetUserSignInRecord", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RecordServiceServer is the server API for RecordService service.
 // All implementations must embed UnimplementedRecordServiceServer
 // for forward compatibility
 type RecordServiceServer interface {
 	GetSignInInfo(context.Context, *GetSignInInfoRequest) (*SignInInfoReply, error)
 	SignIn(context.Context, *SignInRequest) (*SignInInfoReply, error)
+	GetUserSignInRecord(context.Context, *GetUserSignInRecordRequest) (*GetUserSignInRecordReply, error)
 	mustEmbedUnimplementedRecordServiceServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedRecordServiceServer) GetSignInInfo(context.Context, *GetSignI
 }
 func (UnimplementedRecordServiceServer) SignIn(context.Context, *SignInRequest) (*SignInInfoReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
+}
+func (UnimplementedRecordServiceServer) GetUserSignInRecord(context.Context, *GetUserSignInRecordRequest) (*GetUserSignInRecordReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSignInRecord not implemented")
 }
 func (UnimplementedRecordServiceServer) mustEmbedUnimplementedRecordServiceServer() {}
 
@@ -120,6 +134,24 @@ func _RecordService_SignIn_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RecordService_GetUserSignInRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSignInRecordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecordServiceServer).GetUserSignInRecord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.record.v1.RecordService/GetUserSignInRecord",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecordServiceServer).GetUserSignInRecord(ctx, req.(*GetUserSignInRecordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RecordService_ServiceDesc is the grpc.ServiceDesc for RecordService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var RecordService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SignIn",
 			Handler:    _RecordService_SignIn_Handler,
+		},
+		{
+			MethodName: "GetUserSignInRecord",
+			Handler:    _RecordService_GetUserSignInRecord_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -5,6 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/wire"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	recordv1 "sign-in/api/record/v1"
 	userv1 "sign-in/api/user/v1"
 	"sign-in/app/signin/interface/internal/conf"
@@ -43,7 +44,7 @@ func NewData(
 func NewUserClient(config *conf.Data) userv1.UserServiceClient {
 	conn, err := grpc.Dial(
 		config.Userclient.Addr,
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		panic(err.Error())

@@ -9,6 +9,7 @@ option java_package = "api.record.v1";
 service RecordService {
   rpc GetSignInInfo(GetSignInInfoRequest) returns (SignInInfoReply);
   rpc SignIn(SignInRequest) returns (SignInInfoReply);
+  rpc GetUserSignInRecord(GetUserSignInRecordRequest) returns (GetUserSignInRecordReply);
 }
 
 message GetSignInInfoRequest {
@@ -23,4 +24,19 @@ message SignInInfoReply {
 
 message SignInRequest {
   int64 user = 1;
+}
+
+message GetUserSignInRecordRequest {
+  int64 user = 1;
+  repeated string day = 2;
+}
+
+message UserRecord {
+  string day = 1;
+  int32  index = 2;
+  double reward = 3;
+}
+
+message GetUserSignInRecordReply{
+  repeated UserRecord user_record = 1;
 }

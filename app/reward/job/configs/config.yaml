@@ -1,0 +1,13 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  kafka:
+    addrs:
+    - 127.0.0.1:9092
+  walletClient:
+    addr: 127.0.0.1:9003

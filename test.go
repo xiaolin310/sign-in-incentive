@@ -2,15 +2,13 @@ package main
 
 import (
     "fmt"
+    "strconv"
 )
 
 
 func main() {
-    signInIndexList := make([]bool, 7)
-    index := 3
-    for i := 0; i <= index; i++ {
-	signInIndexList[i] = true
-    }
-   fmt.Println(signInIndexList)
+    str := "123.23"
+    fmt.Println(strconv.ParseFloat(str,64))
+
 }
 

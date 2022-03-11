@@ -1,30 +1,39 @@
 syntax = "proto3";
 
 package api.signin.admin.v1;
+import "google/api/annotations.proto";
+
 
 option go_package = "sign-in/api/signin/admin/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.signin.admin.v1";
 
-service Signin_admin {
-	rpc CreateSignin_admin (CreateSignin_adminRequest) returns (CreateSignin_adminReply);
-	rpc UpdateSignin_admin (UpdateSignin_adminRequest) returns (UpdateSignin_adminReply);
-	rpc DeleteSignin_admin (DeleteSignin_adminRequest) returns (DeleteSignin_adminReply);
-	rpc GetSignin_admin (GetSignin_adminRequest) returns (GetSignin_adminReply);
-	rpc ListSignin_admin (ListSignin_adminRequest) returns (ListSignin_adminReply);
+service SignInAdminService {
+	rpc GetSignInRecord (GetSignInRecordRequest) returns (GetSignInRecordReply) {
+		option (google.api.http) = {
+			post: "/api/admin/signin/v1/getSignInRecord"
+			body: "*"
+		};
+	};
 }
 
-message CreateSignin_adminRequest {}
-message CreateSignin_adminReply {}
+message SignInRecord {
+	string day = 1;
+	int32 signIndex = 2;
+	double reward = 3;
+}
 
-message UpdateSignin_adminRequest {}
-message UpdateSignin_adminReply {}
+message UserSignInRecord {
+	int64 user = 1;
+	repeated SignInRecord sign_record = 2;
+}
 
-message DeleteSignin_adminRequest {}
-message DeleteSignin_adminReply {}
+message GetSignInRecordRequest {
+	repeated int64 user = 1;
+	repeated string day = 2;
+}
 
-message GetSignin_adminRequest {}
-message GetSignin_adminReply {}
+message GetSignInRecordReply {
+	repeated UserSignInRecord data = 1;
 
-message ListSignin_adminRequest {}
-message ListSignin_adminReply {}
+}

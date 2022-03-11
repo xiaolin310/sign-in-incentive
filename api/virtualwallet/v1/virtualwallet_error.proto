@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package api.virtualwallet.v1;
+import "errors/errors.proto";
+
+
+option go_package = "sign-in/api/virtualwallet/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.virtualwallet.v1";
+
+enum VirtualWalletServiceErrorReason {
+	option (errors.default_code) = 500;
+
+	UNKNOWN_ERROR = 0;
+	BALANCE_NOT_SUFFICIENT= 2 [(errors.code) = 406];
+	INVALID_AMOUNT = 3 [(errors.code) = 406];
+}

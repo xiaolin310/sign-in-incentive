@@ -5,14 +5,14 @@
 package main
 
 import (
-	"record/internal/biz"
-	"record/internal/conf"
-	"record/internal/data"
-	"record/internal/server"
-	"record/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"sign-in/app/record/service/internal/biz"
+	"sign-in/app/record/service/internal/conf"
+	"sign-in/app/record/service/internal/data"
+	"sign-in/app/record/service/internal/server"
+	"sign-in/app/record/service/internal/service"
 )
 
 // initApp init kratos application.
