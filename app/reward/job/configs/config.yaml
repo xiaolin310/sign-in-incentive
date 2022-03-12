@@ -8,6 +8,6 @@ server:
 data:
   kafka:
     addrs:
-    - 127.0.0.1:9092
+    - 172.19.92.170:9092
   walletClient:
-    addr: 127.0.0.1:9003
+    addr: 127.0.0.1:9002

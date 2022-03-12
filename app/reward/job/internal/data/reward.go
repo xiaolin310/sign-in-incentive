@@ -8,7 +8,6 @@ import (
 	walletClientV1 "sign-in/api/virtualwallet/v1"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 var (
@@ -34,13 +33,13 @@ func NewRewardRepo(data *Data, logger log.Logger) *RewardRepo {
 }
 
 func (r *RewardRepo) Consume(ctx context.Context) error {
-
 	partitionList, err := r.data.kc.Partitions(topic)
 	if err != nil {
 		r.log.Errorf("fail to get list of partition,err: %v\n", err)
 		return err
 	}
-	wg := sync.WaitGroup{}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	for partition := range partitionList {
 		// 针对每个分区创建一个对应的消费者
 		pc, err := r.data.kc.ConsumePartition(topic, int32(partition), sarama.OffsetNewest)
@@ -49,23 +48,26 @@ func (r *RewardRepo) Consume(ctx context.Context) error {
 				partition, err)
 			return err
 		}
-		wg.Add(1)
 		go func(sarama.PartitionConsumer) {
+			defer pc.AsyncClose()
 			for msg := range pc.Messages() {
 				r.log.Infof("Partition:%d Offset:%d Key:%v Value:%v\n",
 					msg.Partition, msg.Offset, msg.Key, string(msg.Value))
 				err := r.doReward(ctx, string(msg.Value))
 				if err != nil {
-					r.log.Fatalf("do reward to user failed, please check err: %v", err)
+					r.log.Fatalf("do reward to user failed, please check err: %v, and message: %s",
+						err, string(msg.Value))
 				}
-				defer pc.AsyncClose()
-				wg.Done()
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					continue
+				}
 			}
 		}(pc)
-		wg.Wait()
-
 	}
-	return nil
+	return err
 }
 
 func (r *RewardRepo) doReward(ctx context.Context, message string) error {

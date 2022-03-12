@@ -55,7 +55,7 @@ func NewUserClient(config *conf.Data) userv1.UserServiceClient {
 func NewRecordClient(config *conf.Data) recordv1.RecordServiceClient {
 	conn, err := grpc.Dial(
 		config.Recordclient.Addr,
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		panic(err.Error())

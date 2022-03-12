@@ -11,7 +11,7 @@ data:
     source: root:root@tcp(127.0.0.1:3306)/test
   kafka:
     addrs:
-    - 127.0.0.1:9092
+    - 172.19.92.170:9092
   redis:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s

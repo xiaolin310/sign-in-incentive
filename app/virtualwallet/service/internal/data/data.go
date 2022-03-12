@@ -15,7 +15,6 @@ var ProviderSet = wire.NewSet(NewData, NewWalletRepo)
 
 // Data .
 type Data struct {
-	// TODO wrapped database client
 	db *ent.Client
 }
 
