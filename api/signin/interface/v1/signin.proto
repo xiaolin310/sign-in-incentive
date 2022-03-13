@@ -30,6 +30,11 @@ service SingInInterface {
 			get: "/api/signin/v1/signin"
 		};
 	};
+	rpc GetBalance(GetBalanceRequest) returns (GetBalanceReply) {
+		option (google.api.http) = {
+			get: "/api/signin/v1/getBalance"
+		};
+	};
 }
 
 message RegisterRequest {
@@ -62,3 +67,10 @@ message SignInInfoReply {
 }
 
 message SignInRequest {}
+
+message GetBalanceRequest {
+}
+
+message GetBalanceReply{
+	double balance = 1;
+}
