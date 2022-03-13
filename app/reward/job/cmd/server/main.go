@@ -60,9 +60,6 @@ func main() {
 		panic(err)
 	}
 	defer cleanup()
-	err = repo.Consume(context.Background())
-	if err != nil {
-		log.Errorf("do reward failed, please check the error: %v", err)
-	}
+	repo.Consume(context.Background())
 	select {}
 }

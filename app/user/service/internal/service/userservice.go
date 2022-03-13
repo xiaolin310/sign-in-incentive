@@ -86,6 +86,9 @@ func (s *UserService) RemoveUser(ctx context.Context, req *pb.RemoveUserRequest)
 	if err != nil {
 		err = pb.ErrorUnknownError("error: remove user failed, reason: unknown error")
 	}
+	reply = &pb.RemoveUserReply{
+		Code: 200,
+	}
 	return
 }
 

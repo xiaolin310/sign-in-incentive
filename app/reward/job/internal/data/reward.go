@@ -32,21 +32,22 @@ func NewRewardRepo(data *Data, logger log.Logger) *RewardRepo {
 	return &RewardRepo{data: data, log: log.NewHelper(logger)}
 }
 
-func (r *RewardRepo) Consume(ctx context.Context) error {
+func (r *RewardRepo) Consume(ctx context.Context) {
 	partitionList, err := r.data.kc.Partitions(topic)
 	if err != nil {
 		r.log.Errorf("fail to get list of partition,err: %v\n", err)
-		return err
+		return
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+
+	//ctx, cancel := context.WithCancel(context.Background())
+	//defer cancel()
 	for partition := range partitionList {
 		// 针对每个分区创建一个对应的消费者
 		pc, err := r.data.kc.ConsumePartition(topic, int32(partition), sarama.OffsetNewest)
 		if err != nil {
 			r.log.Errorf("failed to start consumer for partition %d, err: %v\n",
 				partition, err)
-			return err
+			return
 		}
 		go func(sarama.PartitionConsumer) {
 			defer pc.AsyncClose()
@@ -67,7 +68,6 @@ func (r *RewardRepo) Consume(ctx context.Context) error {
 			}
 		}(pc)
 	}
-	return err
 }
 
 func (r *RewardRepo) doReward(ctx context.Context, message string) error {

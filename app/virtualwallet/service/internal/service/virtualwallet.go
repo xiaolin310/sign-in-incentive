@@ -35,7 +35,7 @@ func (s *VirtualWalletService) Debit(ctx context.Context, req *v1.DebitRequest) 
 		// TODO: how to handle the new error, BALANCE_NOT_SUFFICIENT
 		return nil, err
 	}
-	return &v1.DebitReply{}, nil
+	return &v1.DebitReply{Code: 200}, nil
 }
 
 func (s *VirtualWalletService) Credit(ctx context.Context, req *v1.CreditRequest) (*v1.CreditReply, error) {
@@ -45,6 +45,6 @@ func (s *VirtualWalletService) Credit(ctx context.Context, req *v1.CreditRequest
 		return nil, err
 
 	}
-	return &v1.CreditReply{}, nil
+	return &v1.CreditReply{Code: 200}, nil
 }
 

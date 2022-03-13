@@ -7,7 +7,6 @@ option go_package = "sign-in/api/signin/interface/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.signin.interface.v1";
 
-// TODO: 增加一个查询钱包余额的接口
 service SingInInterface {
 	rpc Register(RegisterRequest) returns (RegisterReply) {
 		option (google.api.http) = {
@@ -28,7 +27,7 @@ service SingInInterface {
 	};
 	rpc SignIn(SignInRequest) returns (SignInInfoReply) {
 		option (google.api.http) = {
-			get: "/api/clockin/v1/signin"
+			get: "/api/signin/v1/signin"
 		};
 	};
 }

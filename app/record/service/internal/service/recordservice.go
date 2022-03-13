@@ -30,6 +30,7 @@ func (s *RecordService) GetSignInInfo(ctx context.Context, req *v1.GetSignInInfo
 		default:
 			err = v1.ErrorUnknownError("error: get sign info failed, reason: unknown error")
 		}
+		return nil, err
 	}
 	return toProtoSignInInfoReply(resp), err
 }
@@ -42,6 +43,7 @@ func (s *RecordService) SignIn(ctx context.Context, req *v1.SignInRequest) (*v1.
 		default:
 			err = v1.ErrorUnknownError("error: unknown error")
 		}
+		return nil, err
 	}
 	return toProtoSignInInfoReply(resp), err
 }
@@ -74,6 +76,7 @@ func toProtoSignInInfoReply(source *biz.SignInResp) *v1.SignInInfoReply {
 func bulk2ProtoRecord(source []*biz.Record) []*v1.UserRecord {
 	result := make([]*v1.UserRecord, 0, len(source))
 	for _, v := range source {
+		v.SignInIndex++
 		result = append(result, &v1.UserRecord{
 			Day:    v.SignInDay,
 			Index:  int32(v.SignInIndex),

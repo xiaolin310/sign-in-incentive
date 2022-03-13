@@ -13,8 +13,8 @@ var baseURL = "http://127.0.0.1:8001"
 func TestGetSignInRecord(t *testing.T) {
 	url := baseURL + "/api/admin/signin/v1/getSignInRecord"
 	data := map[string]interface{} {
-		"user": []int64{1, 2},
-		"day":  []string{"20220311", "20220312"},
+		"user": []int64{8, 9},
+		"day":  []string{"20220311", "20220312", "20220313"},
 	}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -25,9 +25,10 @@ func TestGetSignInRecord(t *testing.T) {
 		t.Error(err.Error())
 	}
 	response := map[string]interface{}{}
+	fmt.Println("response",response, url)
 	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		t.Error(err.Error())
 	}
-	fmt.Printf("Admin get user sign in record reply: %v", response)
+	fmt.Printf("Admin get user sign in record reply: %v", response["data"])
 
 }

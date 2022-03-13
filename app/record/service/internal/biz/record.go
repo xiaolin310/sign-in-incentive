@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"sign-in/app/record/service/internal/data/ent"
 	"time"
 )
 
@@ -45,25 +44,21 @@ func (uc *RecordUseCase) GetSignInInfo(ctx context.Context, userId int64) (*Sign
 
 	index, err := uc.getTodayIndex(ctx, userId, ntime)
 	if err != nil {
-		// 这里的error是获取记录的(查询库表）的unknown error
 		return nil, err
 	}
-	_, err = uc.repo.GetSignInRecord(ctx, userId, []string{today})
+	record, err := uc.repo.GetSignInRecord(ctx, userId, []string{today})
 	if err != nil {
-		switch err.(type) {
-		case *ent.NotFoundError:
-			todaySignState = false
-		default:
-			// 这里的error是获取记录的(查询库表）的unknown error
-			return nil, err
-		}
+		return nil, err
 	} else {
-		todaySignState = true
+		// 获取到记录，设置状态
+		if len(record) > 0 {
+			todaySignState = true
+		}
 	}
 	if !todaySignState {
 		index--
 	}
-	// index == -1时需要单独处理
+	// index == -1 边界
 	return uc.repo.GetSignInInfo(ctx, index, todaySignState)
 }
 
@@ -101,14 +96,12 @@ func (uc *RecordUseCase) getTodayIndex(ctx context.Context, userId int64, now ti
 	// 获取昨天签到记录
 	record, err := uc.repo.GetSignInRecord(ctx, userId, []string{yesterday})
 	if err != nil {
-		switch err.(type) {
-		// 未找到昨天的记录，签到周期重置，SignIndex = 0
-		case *ent.NotFoundError:
-		default:
-			return -1, err
-		}
+		return -1, err
 	} else {
-		index = (record[0].SignInIndex + 1) % 7
+		// 获取到记录，+1 取余，未获取到，index还是0
+		if len(record) > 0 {
+			index = (record[0].SignInIndex + 1) % 7
+		}
 	}
 	return index, nil
 

@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-var baseURL = "127.0.0.1:8000"
+var baseURL = "http://127.0.0.1:8000"
 
 func TestRegister(t *testing.T) {
 	url := baseURL + "/api/signin/v1/register"
@@ -60,7 +60,7 @@ func TestGetSignInInfo(t *testing.T) {
 		t.Error(err.Error())
 	}
 	// 需要设置一个有效的token
-	req.Header.Add("Authorization", "MXx5dWtp")
+	req.Header.Add("Authorization", "NnxKZXJyeQ==")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Error(err.Error())
@@ -73,13 +73,13 @@ func TestGetSignInInfo(t *testing.T) {
 }
 
 func TestSignIn(t *testing.T) {
-	url := baseURL + "/api/clockin/v1/signin"
+	url := baseURL + "/api/signin/v1/signin"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	// 一个有效的token
-	req.Header.Add("Authorization", "MXx5dWtp")
+	req.Header.Add("Authorization", "NnxKZXJyeQ==")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Error(err.Error())

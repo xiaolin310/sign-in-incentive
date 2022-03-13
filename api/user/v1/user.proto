@@ -54,4 +54,6 @@ message RemoveUserRequest {
 	repeated int64 id = 1;
 }
 
-message RemoveUserReply {}
+message RemoveUserReply {
+	int32 code = 1;
+}

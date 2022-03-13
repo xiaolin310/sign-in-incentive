@@ -25,10 +25,14 @@ message debitRequest {
 	int64  user = 1;
 	double amount = 2;
 }
-message debitReply {}
+message debitReply {
+	int32 code = 1;
+}
 
 message creditRequest {
 	int64  user = 1;
 	double amount = 2;
 }
-message creditReply {}
+message creditReply {
+	int32 code = 1;
+}

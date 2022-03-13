@@ -27,6 +27,7 @@ func (r userRecordRepo) GetUserSignInRecord(ctx context.Context, userId int64,
 	if err != nil {
 		return nil, err
 	}
+	// if reply == nil ||
 	return bulk2BizSignInRecord(reply.UserRecord), nil
 }
 

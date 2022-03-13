@@ -22,15 +22,13 @@ type recordRepo struct {
 
 var _ biz.RecordRepo = (*recordRepo)(nil)
 
-// var ErrRecordNotComplete = errors.New("error: user clockin records does not complete")
-
 var (
 	// TODO: 暂时固定7天奖励列表。后期可以考虑对接运营配置平台或者第三方平台
 	rewardList = []float64{100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0}
 	// kafka topic
 	topic = "reward"
-	// ErrWorkTimeNotFoundInCache record not found in cache
-	ErrWorkTimeNotFoundInCache = errors.New("error: user record not existed in cache")
+	// ErrRecordNotFoundInCache record not found in cache
+	ErrRecordNotFoundInCache = errors.New("error: user record not existed in cache")
 
 // 值为0或1，长度为7，用true代表当前周期内已经签到的那天，
 	// 如[true,false,false,false,false,false,false]代表当前周期第一天已经签到
@@ -97,18 +95,26 @@ func (r *recordRepo) Reward(ctx context.Context, userId int64, index int) error 
 		r.log.Errorf("Send Message to Kafka failed, err: %v", err)
 		return err
 	}
+
 	r.log.Infof("Producer message sent to Kafka, partition:%v offset:%v\n", partition, offset)
 	return nil
 }
 
 func (r *recordRepo) GetSignInRecord(ctx context.Context, userId int64, dates []string) ([]*biz.Record, error) {
-	result, err := r.getUserRecordFromCache(ctx, userId)
+	result, err := r.getUserRecordFromCache(ctx, userId, dates)
 	if err != nil {
+		// r.log.Errorf("get cache error: %v", err)
 		result, err = r.getUserRecordFromDB(ctx, userId, dates)
 		if err != nil {
 			return nil, err
 		}
-		return result, r.writeUserRecord2Cache(ctx, userId, result)
+		if len(result) > 0 {
+			err = r.writeUserRecord2Cache(ctx, userId, result)
+			if err != nil {
+				r.log.Errorf("write to cache error: %v", err)
+				return result, err
+			}
+		}
 	}
 	return result, nil
 }
@@ -128,28 +134,44 @@ func (r *recordRepo) getUserRecordFromDB(ctx context.Context, userId int64,
 
 }
 
-func (r *recordRepo) getUserRecordFromCache(ctx context.Context, userId int64) ([]*biz.Record, error) {
-	data, err := r.data.rc.Get(ctx, strconv.Itoa(int(userId))).Result()
-	if err != nil {
-		return nil, ErrWorkTimeNotFoundInCache
-	}
-	b := []byte(data)
-	var recordList []*biz.Record
-	err = json.Unmarshal(b, &recordList)
+func (r *recordRepo) getUserRecordFromCache(ctx context.Context, userId int64,
+	dates []string) ([]*biz.Record, error) {
+	val, err := r.data.rc.HGetAll(ctx, strconv.Itoa(int(userId))).Result()
 	if err != nil {
 		return nil, err
 	}
+	recordList := make([]*biz.Record, 0)
+	for _, d := range dates {
+		ll, ok := val[d]
+		if !ok {
+			return nil, ErrRecordNotFoundInCache
+		}
+		var res []float64
+		err = json.Unmarshal([]byte(ll), &res)
+		if err != nil {
+			return nil, err
+		}
+		recordList = append(recordList, &biz.Record{
+			SignInIndex: int(res[0]),
+			Reward:      res[1],
+		})
+	}
 	return recordList, nil
-
 }
 
 func (r *recordRepo) writeUserRecord2Cache(ctx context.Context, userId int64,
 	record []*biz.Record) error {
-	data, err := json.Marshal(record)
-	if err != nil {
-		return err
+
+	// redis hash Key格式: userId, field: SignInDay, eg.20220313, value: *biz.Record
+	data := make(map[string]interface{})
+	for _, v := range record {
+		fieldBytes, err := json.Marshal([]float64{float64(v.SignInIndex), v.Reward})
+		if err != nil {
+			return err
+		}
+		data[v.SignInDay] = fieldBytes
 	}
-	return r.data.rc.Set(ctx, strconv.Itoa(int(userId)), data, 0).Err()
+	return r.data.rc.HSet(ctx, strconv.Itoa(int(userId)), data).Err()
 }
 
 

@@ -17,7 +17,7 @@ var (
 
 func TestGetSignInInfo(t *testing.T) {
 	resp, err := client.GetSignInInfo(ctx, &recordV1.GetSignInInfoRequest{
-		User: 8,
+		User: 9,
 	})
 	if err != nil {
 		t.Error(err.Error())
@@ -28,7 +28,7 @@ func TestGetSignInInfo(t *testing.T) {
 
 func TestSignIn(t *testing.T) {
 	resp, err := client.SignIn(ctx, &recordV1.SignInRequest{
-		User: 8,
+		User: 9,
 	})
 	if err != nil {
 		t.Error(err.Error())
@@ -39,13 +39,13 @@ func TestSignIn(t *testing.T) {
 
 func TestGetUserSignInRecord(t *testing.T) {
 	resp, err := client.GetUserSignInRecord(ctx, &recordV1.GetUserSignInRecordRequest{
-		User: 8,
-		Day: []string{"20220311", "20220312"},
+		User: 9,
+		Day: []string{"20220311", "20220312", "20220313"},
 	})
 	if err != nil {
 		t.Error(err.Error())
 	} else {
-		fmt.Printf("Get User SignIn Record reply: %v", resp)
+		fmt.Printf("Get User SignIn Record reply: %v", resp.UserRecord)
 	}
 }
 

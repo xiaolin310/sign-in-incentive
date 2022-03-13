@@ -23,10 +23,13 @@ func NewSignInAdminServiceService(uc *biz.UserRecordUseCase, logger log.Logger) 
 
 func (s *SignInAdminService) GetSignInRecord(ctx context.Context, req *v1.GetSignInRecordRequest) (reply *v1.GetSignInRecordReply, err error) {
 	record, err := s.uc.GetUserRecord(ctx, req.User, req.Day)
-	if err != nil {
-		// TODO: switch NOT_FOUND ERROR
-		err = v1.ErrorUnknownError("unknown error")
-	} else {
+	switch  {
+	case err != nil:
+		err = v1.ErrorUnknownError(err.Error())
+	case len(record) == 0:
+		err = v1.ErrorUserRecordNotFound("error: user sign in record not existed")
+	}
+	if err == nil {
 		reply = &v1.GetSignInRecordReply{
 			Data: bulk2ProtoUserSignInRecord(record),
 		}

@@ -28,7 +28,7 @@ func TestGetUserByName(t *testing.T) {
 
 func TestGetUserById(t *testing.T) {
 	resp, err := client.GetUserById(ctx, &userV1.GetUserByIdRequest{
-		Id: []int64{1, 2},
+		Id: []int64{1, 3},
 	})
 	if err != nil {
 		t.Error(err.Error())
@@ -39,7 +39,7 @@ func TestGetUserById(t *testing.T) {
 
 func TestSearchUserByName(t *testing.T) {
 	resp, err := client.SearchUserByName(ctx, &userV1.SearchUserByNameRequest{
-		Name: "Shelly",
+		Name: "Zhangsan",
 	})
 	if err != nil {
 		t.Error(err.Error())
@@ -50,7 +50,7 @@ func TestSearchUserByName(t *testing.T) {
 
 func TestRemoveUser(t *testing.T) {
 	resp, err := client.RemoveUser(ctx, &userV1.RemoveUserRequest{
-		Id: []int64{1, 2},
+		Id: []int64{4},
 	})
 	if err != nil {
 		t.Error(err.Error())
@@ -61,9 +61,9 @@ func TestRemoveUser(t *testing.T) {
 func TestSaveUser(t *testing.T) {
 	resp, err := client.SaveUser(ctx, &userV1.SaveUserRequest{
 		User: &userV1.User{
-			Name: "Lisi",
-			Password: "123456",
-			Phone: "13223567901",
+			Name: "Wangwu",
+			Password: "12345678",
+			Phone: "13223567912",
 		},
 	})
 	if err != nil {

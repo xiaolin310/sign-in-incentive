@@ -7,7 +7,7 @@ server:
     timeout: 1s
 data:
   kafka:
-    addrs:
+    addr:
     - 172.19.92.170:9092
   walletClient:
     addr: 127.0.0.1:9002
