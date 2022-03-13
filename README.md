@@ -32,11 +32,11 @@
 
 - 微服务中间件的使用（ELK、Opentracing、Prometheus、Kafka）
 
-  只实现了Kafka中间件的使用.具体体现在[打卡记录服务](#打卡记录服务(record-service)), [worktime-job](#worktime-job)两部分
+  只实现了Kafka中间件的使用.具体体现在[签到记录服务](#签到记录服务(record-service)) , [reward-job](#####reward-job)两部分
 
 - 缓存的使用优化（一致性处理、Pipeline 优化）
 
-  具体体现在[worktime-service](#worktime-service)的查询用户工时部分
+  具体体现在[admin](#####admin)的查询用户签到部分
 
 ## 项目需求
 
@@ -53,6 +53,19 @@
     * 7天一个周期，签满7天自动切到下一个7天周期
     * 如果当天用户未完成签到，第二天签到周期重置到周期第一天
   
+* 前端图片示例（copy过来的，感觉画不好:) )
+
+> 首次获取签到信息
+
+![avatar](./img/1.jpeg)
+
+> 完成首次签到
+
+![avatar](./img/2.jpeg)
+
+> 完成第二次签到
+
+![avatar](./img/3.jpeg)
 
 ## 框架使用
 
@@ -86,7 +99,7 @@ BFF
 | 名称              | 描述                                        | 代码位置                                                     |
 | ----------------- | ------------------------------------------- | ------------------------------------------------------------ |
 | signin-interface | 普通用户BFF接口，提供http与grpc协议的接口   | 业务逻辑: /app/signin/interface<br>接口定义: /api/signin/interface/v1 |
-| clockin-admin     | 管理员用户BFF接口，提供http与grpc协议的接口 | 业务逻辑: /app/signin/admin<br/>接口定义: /api/signin/admin/v1 |
+| signin-admin     | 管理员用户BFF接口，提供http与grpc协议的接口 | 业务逻辑: /app/signin/admin<br/>接口定义: /api/signin/admin/v1 |
 
 
 内部微服务
@@ -102,7 +115,7 @@ BFF
 
 ### 服务结构
 
-参考了[beer-shop](https://github.com/go-kratos/beer-shop)项目的实践形式
+参考了[beer-shop](https://github.com/go-kratos/beer-shop) 项目的实践形式
 
 
 #### 接口与错误定义
@@ -127,13 +140,13 @@ api/user/
 
 #### 业务代码结构
 
-根据[kratos-layout](https://github.com/go-kratos/kratos-layout)与[beer-shop](https://github.com/go-kratos/beer-shop)项目的最佳实践，每个服务会按以下分层
+根据[kratos-layout](https://github.com/go-kratos/kratos-layout) 与 [beer-shop](https://github.com/go-kratos/beer-shop) 项目的最佳实践，每个服务会按以下分层
 
 * cmd
 
   项目启动文件main.go
 
-  构建依赖关系的wire.go，使用[google/wire](https://github.com/google/wire)项目来实现项目启动时的依赖注入的生命周期管理
+  构建依赖关系的wire.go，使用[google/wire](https://github.com/google/wire) 项目来实现项目启动时的依赖注入的生命周期管理
 
 * configs
 
@@ -170,7 +183,7 @@ api/user/
 
 #### 接口测试
 
-每个服务的接口测试都定义在`test/<服务名>/<服务类型>/*_test.go`中，如：
+每个服务的接口测试都定义在`test/<服务名>/<服务类型>/*_test.go`中
 
 
 ### 服务描述
@@ -180,15 +193,15 @@ api/user/
 
 主要实现以下服务接口
 
-* 通过ID批量查询用户信息 - GetUserById
+* 通过ID批量查询用户信息
 
   从数据库中根据提交的id列表查询相印的用户信息
 
-* 通过用户名获取该用户信息 - GetUserByName
+* 通过用户名获取该用户信息
 
   从数据库中根据提交的名字(精准匹配)获取用户信息，主要是用户登录时使用
 
-* 根据用户名关键词搜索用户 - SearchUserByName
+* 根据用户名关键词搜索用户
 
   从数据库中根据提交的名字(模糊匹配)获取用户信息
 
@@ -199,7 +212,6 @@ api/user/
 * 移除一个用户
 
   标记数据库中的用户为删除状态(软删除)，管理员移除用户时使用
-
 
 
 #### 签到记录服务(record-service)
@@ -215,8 +227,9 @@ api/user/
     * 写入一条签到记录到数据库中
     * 作为消息队列生产者，给reward-job服务发送一条写入奖励信息到用户钱包的任务
 
-  rabbitmq生产者实现代码如下，代码位置是[/app/record/service/internal/data/record.go]()
+  kafka生产者实现代码如下，代码位置是[app/record/service/internal/data/record.go](./app/record/service/internal/data/record.go)
 
+* 获取用户签到记录，供admin接口使用
 
 #### 发奖服务
 
@@ -225,39 +238,66 @@ api/user/
 
 实现消息队列的消费者，监听record-service发送的消息，并且根据消息内容，调用virtualwallet服务，写入奖励信息
 
-kafka的消费者队列实现如下，代码位置是[app/reward/job/cmd/server/main.go]
+kafka的消费者队列实现如下，代码位置是[app/reward/job/internal/data/reward.go](./app/reward/job/internal/data/reward.go)
 
 
 ##### wallet-service
 
 主要实现以下服务接口
 
-* 写入用户账户信息，
-* 扣款
-* 获取余额
+* 查询用户账户余额
+* 账户支付扣款，本次场景没有用到，保留接口
+* 充值，即奖励到账
+
+#### BFF
+
+##### interface
+
+主要实现以下服务接口(http)
+
+* 用户登录
+
+  提交用户名和密码到user-service中进行查询，若用户名匹配成功且密码正确，会根据用户id和用户名生成一个token并返回给客户端，其余接口需要在http请求头中获取Authorization字段中的token，进行解密后，将用户id写入context中才可进入业务逻辑，否则将中断请求
+
+* 用户注册
+
+  调用user-service的持久化用户服务
+
+* 用户获取签到信息
+
+  调用record-service的用户获取信息服务
+
+* 用户完成签到
+
+  调用record-service的签到记录服务
+
+* 用户查询钱包余额
+
+  调用virtualwallet-service获取信息
 
 
 
+##### admin
+
+主要实现以下服务接口(http)
+
+* 查询指定用户指定日期的签到记录
+
+  这里采取了并行请求的模式，每次请求的内容为多个用户的多个日期的签到记录，使用errgroup来统一管理错误信息，实现如下（代码位置是[app/signin/admin/internal/biz/sign.go](./app/signin/admin/internal/biz/sign.go)）；
+  查询记录的时候，调用了record-service服务的接口，record-service服务使用了redis存储每次查询结果，
+  相关代码位于 [app/record/service/internal/data/record.go](./app/record/service/internal/data/record.go)
 
 
+## 遗留问题
 
+1. 用户登录时返回的令牌没有使用jwt而是简单使用了base64加密，后续需要改为jwt保证安全性
+2. 由proto文件生产的go代码，由于`omitempty`属性，返回时会吞掉bool值的默认值false，这个false返回是有意义的,示例，
+```go
+IsSignToday  bool  `protobuf:"varint,3,opt,name=is_sign_today,json=isSignToday,proto3" json:"is_sign_today,omitempty"`
 
-
-
-
-
-
-## Service
-
-#### user， RPC: 9001， 依赖：mysql [redis]
-
-#### record, RPC: 9003, 依赖：mysql, redis, kafka
-
-#### virtualwallet, RPC: 9002, 依赖：mysql
-
-
-### signin/interface，RPC：9000， HTTP：8000
-
-### signin/admin， RPC： 9004，HTTP：8001
-
-### reward, Job, 不占用端口， 依赖：Kafka，wallet
+```
+3. 错误码规范、Error 的使用部分，感觉还没有理解的很好
+4. 项目中没有链路追踪，tracing相关的实现
+5. 没有使用服务注册发现组件
+6. 日志部分没有规划好，也没有考虑熔断限流问题.
+7. 虚拟钱包实现的过于简单，缺少查询流水的功能
