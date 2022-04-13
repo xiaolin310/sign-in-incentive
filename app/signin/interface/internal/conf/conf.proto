@@ -32,6 +32,10 @@ message Data {
   message RecordClient {
     string addr = 1;
   }
+  message WalletClient {
+    string addr = 1;
+  }
   UserClient userclient = 1;
   RecordClient recordclient = 2;
+  WalletClient walletclient = 3;
 }

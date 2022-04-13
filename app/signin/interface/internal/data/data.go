@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	recordv1 "sign-in/api/record/v1"
 	userv1 "sign-in/api/user/v1"
+	walletClientV1 "sign-in/api/virtualwallet/v1"
 	"sign-in/app/signin/interface/internal/conf"
 )
 
@@ -17,14 +18,16 @@ var ProviderSet = wire.NewSet(
 	NewUserRepo,
 	NewUserClient,
 	NewRecordClient,
-	NewRecordRepo)
+	NewRecordRepo,
+	NewWalletClient,
+	NewWalletRepo)
 
 // Data .
 type Data struct {
 	log *log.Helper
 	uc 	userv1.UserServiceClient
 	rc  recordv1.RecordServiceClient
-
+	wc  walletClientV1.VirtualWalletClient
 }
 
 // NewData .
@@ -33,11 +36,13 @@ func NewData(
 	logger log.Logger,
 	uc userv1.UserServiceClient,
 	rc recordv1.RecordServiceClient,
+	wc walletClientV1.VirtualWalletClient,
 ) (*Data, error) {
 	return &Data{
 		log: log.NewHelper(log.With(logger, "module", "data")),
 		uc:  uc,
 		rc:  rc,
+		wc:  wc,
 	}, nil
 }
 
@@ -61,6 +66,17 @@ func NewRecordClient(config *conf.Data) recordv1.RecordServiceClient {
 		panic(err.Error())
 	}
 	return recordv1.NewRecordServiceClient(conn)
+}
+
+func NewWalletClient(config *conf.Data) walletClientV1.VirtualWalletClient {
+	conn, err := grpc.Dial(
+		config.Walletclient.Addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		panic(err.Error())
+	}
+	return walletClientV1.NewVirtualWalletClient(conn)
 }
 //func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 //	cleanup := func() {

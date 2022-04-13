@@ -26,6 +26,7 @@ type SingInInterfaceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	GetSignInInfo(ctx context.Context, in *GetSignInInfoRequest, opts ...grpc.CallOption) (*SignInInfoReply, error)
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInInfoReply, error)
+	GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...grpc.CallOption) (*GetBalanceReply, error)
 }
 
 type singInInterfaceClient struct {
@@ -72,6 +73,15 @@ func (c *singInInterfaceClient) SignIn(ctx context.Context, in *SignInRequest, o
 	return out, nil
 }
 
+func (c *singInInterfaceClient) GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...grpc.CallOption) (*GetBalanceReply, error) {
+	out := new(GetBalanceReply)
+	err := c.cc.Invoke(ctx, "/api.signin.interface.v1.SingInInterface/GetBalance", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SingInInterfaceServer is the server API for SingInInterface service.
 // All implementations must embed UnimplementedSingInInterfaceServer
 // for forward compatibility
@@ -80,6 +90,7 @@ type SingInInterfaceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginReply, error)
 	GetSignInInfo(context.Context, *GetSignInInfoRequest) (*SignInInfoReply, error)
 	SignIn(context.Context, *SignInRequest) (*SignInInfoReply, error)
+	GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceReply, error)
 	mustEmbedUnimplementedSingInInterfaceServer()
 }
 
@@ -98,6 +109,9 @@ func (UnimplementedSingInInterfaceServer) GetSignInInfo(context.Context, *GetSig
 }
 func (UnimplementedSingInInterfaceServer) SignIn(context.Context, *SignInRequest) (*SignInInfoReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
+}
+func (UnimplementedSingInInterfaceServer) GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBalance not implemented")
 }
 func (UnimplementedSingInInterfaceServer) mustEmbedUnimplementedSingInInterfaceServer() {}
 
@@ -184,6 +198,24 @@ func _SingInInterface_SignIn_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SingInInterface_GetBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SingInInterfaceServer).GetBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.signin.interface.v1.SingInInterface/GetBalance",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SingInInterfaceServer).GetBalance(ctx, req.(*GetBalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SingInInterface_ServiceDesc is the grpc.ServiceDesc for SingInInterface service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +238,10 @@ var SingInInterface_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SignIn",
 			Handler:    _SingInInterface_SignIn_Handler,
+		},
+		{
+			MethodName: "GetBalance",
+			Handler:    _SingInInterface_GetBalance_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

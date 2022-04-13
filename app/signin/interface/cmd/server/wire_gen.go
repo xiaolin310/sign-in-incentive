@@ -22,7 +22,8 @@ import (
 func initApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
 	userServiceClient := data.NewUserClient(confData)
 	recordServiceClient := data.NewRecordClient(confData)
-	dataData, err := data.NewData(confData, logger, userServiceClient, recordServiceClient)
+	virtualWalletClient := data.NewWalletClient(confData)
+	dataData, err := data.NewData(confData, logger, userServiceClient, recordServiceClient, virtualWalletClient)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -30,7 +31,9 @@ func initApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	authUsecase := biz.NewAuthUsecase(userRepo, logger)
 	recordRepo := data.NewRecordRepo(dataData, logger)
 	signInUsecase := biz.NewSignInUsecase(recordRepo, logger)
-	singInService := service.NewSingInService(authUsecase, signInUsecase, logger)
+	walletRepo := data.NewWalletRepo(dataData, logger)
+	walletUseCase := biz.NewWalletUseCase(walletRepo, logger)
+	singInService := service.NewSingInService(authUsecase, signInUsecase, walletUseCase, logger)
 	httpServer := server.NewHTTPServer(confServer, singInService, logger)
 	grpcServer := server.NewGRPCServer(confServer, singInService, logger)
 	app := newApp(logger, httpServer, grpcServer)

@@ -32,11 +32,11 @@
 
 - 微服务中间件的使用（ELK、Opentracing、Prometheus、Kafka）
 
-  只实现了Kafka中间件的使用.具体体现在[签到记录服务](#签到记录服务(record-service)) , [reward-job](#####reward-job)两部分
+  只实现了Kafka中间件的使用.具体体现在[签到记录服务](签到记录服务(record-service)) , [reward-job](#reward-job)两部分
 
 - 缓存的使用优化（一致性处理、Pipeline 优化）
 
-  具体体现在[admin](#####admin)的查询用户签到部分
+  具体体现在[admin](#admin)的查询用户签到部分
 
 ## 项目需求
 
@@ -92,7 +92,7 @@
 
 ### 服务分层
 
-针对[项目设定](#项目设定)，对项目进行以下分层
+针对[项目需求](#项目需求)，对项目进行以下分层
 
 BFF
 

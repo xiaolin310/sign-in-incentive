@@ -24,6 +24,7 @@ func NewHTTPServer(
 				Path(
 					"/api.signin.interface.v1.SingInInterface/GetSignInInfo",
 					"/api.signin.interface.v1.SingInInterface/SignIn",
+					"/api.signin.interface.v1.SingInInterface/GetBalance",
 				).
 				Build(),
 			recovery.Recovery(),

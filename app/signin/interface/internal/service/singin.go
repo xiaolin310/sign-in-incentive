@@ -8,7 +8,6 @@ import (
 	"sign-in/app/signin/interface/internal/biz"
 
 	v1 "sign-in/api/signin/interface/v1"
-	
 )
 
 type SingInService struct {
@@ -16,17 +15,22 @@ type SingInService struct {
 
 	au  *biz.AuthUsecase
 	su  *biz.SignInUsecase
+	wu  *biz.WalletUseCase
 	log *log.Helper
 }
+
+var _ v1.SingInInterfaceServer = (*SingInService)(nil)
 
 func NewSingInService(
 	au *biz.AuthUsecase,
 	su *biz.SignInUsecase,
+	wu *biz.WalletUseCase,
 	logger log.Logger,
 ) *SingInService {
 	return &SingInService{
 		au:  au,
 		su:  su,
+		wu:  wu,
 		log: log.NewHelper(logger),
 	}
 }
@@ -98,6 +102,16 @@ func (s *SingInService) SignIn(ctx context.Context, req *v1.SignInRequest) (*v1.
 		}
 	}
 	return toProtoSignInData(singindata), err
+}
+
+func (s *SingInService) GetBalance(ctx context.Context, req *v1.GetBalanceRequest) (*v1.GetBalanceReply, error) {
+	res, err := s.wu.GetBalance(ctx)
+	if err != nil {
+		err = v1.ErrorUnknownError(err.Error())
+	}
+	return &v1.GetBalanceReply{
+		Balance: res.Balance,
+	}, err
 }
 
 func toProtoSignInData(source *biz.SignInData) *v1.SignInInfoReply {

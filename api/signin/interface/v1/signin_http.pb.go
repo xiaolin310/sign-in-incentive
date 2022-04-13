@@ -18,6 +18,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 type SingInInterfaceHTTPServer interface {
+	GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceReply, error)
 	GetSignInInfo(context.Context, *GetSignInInfoRequest) (*SignInInfoReply, error)
 	Login(context.Context, *LoginRequest) (*LoginReply, error)
 	Register(context.Context, *RegisterRequest) (*RegisterReply, error)
@@ -29,7 +30,8 @@ func RegisterSingInInterfaceHTTPServer(s *http.Server, srv SingInInterfaceHTTPSe
 	r.POST("/api/signin/v1/register", _SingInInterface_Register0_HTTP_Handler(srv))
 	r.POST("/api/signin/v1/login", _SingInInterface_Login0_HTTP_Handler(srv))
 	r.GET("/api/signin/v1/signininfo", _SingInInterface_GetSignInInfo0_HTTP_Handler(srv))
-	r.GET("/api/clockin/v1/signin", _SingInInterface_SignIn0_HTTP_Handler(srv))
+	r.GET("/api/signin/v1/signin", _SingInInterface_SignIn0_HTTP_Handler(srv))
+	r.GET("/api/signin/v1/getBalance", _SingInInterface_GetBalance0_HTTP_Handler(srv))
 }
 
 func _SingInInterface_Register0_HTTP_Handler(srv SingInInterfaceHTTPServer) func(ctx http.Context) error {
@@ -108,7 +110,27 @@ func _SingInInterface_SignIn0_HTTP_Handler(srv SingInInterfaceHTTPServer) func(c
 	}
 }
 
+func _SingInInterface_GetBalance0_HTTP_Handler(srv SingInInterfaceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetBalanceRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, "/api.signin.interface.v1.SingInInterface/GetBalance")
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetBalance(ctx, req.(*GetBalanceRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetBalanceReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type SingInInterfaceHTTPClient interface {
+	GetBalance(ctx context.Context, req *GetBalanceRequest, opts ...http.CallOption) (rsp *GetBalanceReply, err error)
 	GetSignInInfo(ctx context.Context, req *GetSignInInfoRequest, opts ...http.CallOption) (rsp *SignInInfoReply, err error)
 	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
 	Register(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *RegisterReply, err error)
@@ -121,6 +143,19 @@ type SingInInterfaceHTTPClientImpl struct {
 
 func NewSingInInterfaceHTTPClient(client *http.Client) SingInInterfaceHTTPClient {
 	return &SingInInterfaceHTTPClientImpl{client}
+}
+
+func (c *SingInInterfaceHTTPClientImpl) GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...http.CallOption) (*GetBalanceReply, error) {
+	var out GetBalanceReply
+	pattern := "/api/signin/v1/getBalance"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation("/api.signin.interface.v1.SingInInterface/GetBalance"))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *SingInInterfaceHTTPClientImpl) GetSignInInfo(ctx context.Context, in *GetSignInInfoRequest, opts ...http.CallOption) (*SignInInfoReply, error) {
@@ -164,7 +199,7 @@ func (c *SingInInterfaceHTTPClientImpl) Register(ctx context.Context, in *Regist
 
 func (c *SingInInterfaceHTTPClientImpl) SignIn(ctx context.Context, in *SignInRequest, opts ...http.CallOption) (*SignInInfoReply, error) {
 	var out SignInInfoReply
-	pattern := "/api/clockin/v1/signin"
+	pattern := "/api/signin/v1/signin"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation("/api.signin.interface.v1.SingInInterface/SignIn"))
 	opts = append(opts, http.PathTemplate(pattern))

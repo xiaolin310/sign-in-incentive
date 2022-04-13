@@ -10,3 +10,5 @@ data:
     addr: 127.0.0.1:9001
   recordclient:
     addr: 127.0.0.1:9003
+  walletclient:
+    addr: 127.0.0.1:9002
